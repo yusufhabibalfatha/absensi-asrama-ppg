@@ -76,97 +76,112 @@
     </h2>
 
     <!-- absen generus -->
-    <div
-      v-for="g in generusList"
-      :key="g.id"
-      class="relative bg-white border-[3px] border-black rounded-xl p-6 mb-4 transition-all duration-300"
-      :class="cardBorder(g.status)"
-    >
+    <div class="flex flex-col justify-center">
       <div
-        class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+        v-for="g in generusList"
+        :key="g.id"
+        class="relative bg-white border-[3px] border-black rounded-xl p-6 mb-4 transition-all duration-300"
+        :class="cardBorder(g.status)"
       >
-        <!-- Nama + Badge -->
-        <div class="flex flex-wrap items-center gap-3 flex-1">
-          <p
-            class="text-lg font-bold px-4 py-2 rounded-lg transition-all duration-300"
-            :class="namaStyle(g.status)"
-          >
-            {{ g.nama_lengkap }}
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+        >
+          <!-- Nama + Badge -->
+          <div class="flex flex-wrap items-center gap-3 flex-1">
+            <p
+              class="text-lg font-bold px-4 py-2 rounded-lg transition-all duration-300"
+              :class="namaStyle(g.status)"
+            >
+              {{ g.nama_lengkap }}
 
+              <span
+                v-if="g.status"
+                class="ml-2 text-xs font-bold px-2 py-1 rounded-full text-white"
+                :class="badgeStyle(g.status)"
+              >
+                {{ g.status.toUpperCase() }}
+              </span>
+            </p>
+
+            <!-- Keterangan badge -->
             <span
-              v-if="g.status"
-              class="ml-2 text-xs font-bold px-2 py-1 rounded-full text-white"
-              :class="badgeStyle(g.status)"
+              v-if="g.keterangan"
+              @click="openKeterangan(g)"
+              class="px-3 py-1 text-xs font-medium border-2 border-sky-700 text-sky-700 bg-sky-50 rounded-full cursor-pointer transition hover:-translate-y-0.5 hover:shadow-[1px_1px_0_#0369a1]"
             >
-              {{ g.status.toUpperCase() }}
+              📝
+              {{
+                g.keterangan.length > 20
+                  ? g.keterangan.substring(0, 20) + "..."
+                  : g.keterangan
+              }}
             </span>
-          </p>
 
-          <!-- Keterangan badge -->
-          <span
-            v-if="g.keterangan"
-            @click="openKeterangan(g)"
-            class="px-3 py-1 text-xs font-medium border-2 border-sky-700 text-sky-700 bg-sky-50 rounded-full cursor-pointer transition hover:-translate-y-0.5 hover:shadow-[1px_1px_0_#0369a1]"
-          >
-            📝
-            {{
-              g.keterangan.length > 20
-                ? g.keterangan.substring(0, 20) + "..."
-                : g.keterangan
-            }}
-          </span>
-
-          <!-- Batalkan -->
-          <button
-            v-if="g.status"
-            @click="
-              g.status = null;
-              g.keterangan = null;
-            "
-            class="bg-red-500 text-white border-2 border-black rounded-md px-3 py-1 text-xs font-bold shadow-[1px_1px_0_black] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[2px_2px_0_black]"
-          >
-            ❌ Batalkan
-          </button>
-        </div>
-
-        <!-- Status Options -->
-        <div class="flex flex-wrap gap-2 justify-center md:justify-end">
-          <label
-            v-for="status in statusOptions"
-            :key="status"
-            class="relative cursor-pointer uppercase text-sm font-bold tracking-wide px-4 py-2 border-2 border-black rounded-md transition-all"
-            :class="statusButton(g.status, status)"
-          >
-            <input
-              type="radio"
-              :name="'status-' + g.id"
-              :value="status"
-              v-model="g.status"
-              class="hidden"
-            />
-
-            {{ status }}
-
+            <!-- Batalkan -->
             <button
-              v-if="g.status === status"
-              type="button"
-              @click.stop="openKeterangan(g)"
-              class="ml-2 text-xs hover:scale-110 transition"
+              v-if="g.status"
+              @click="
+                g.status = null;
+                g.keterangan = null;
+              "
+              class="bg-red-500 text-white border-2 border-black rounded-md px-3 py-1 text-xs font-bold shadow-[1px_1px_0_black] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[2px_2px_0_black]"
             >
-              {{ g.keterangan ? "📝" : "✏️" }}
+              ❌ Batalkan
             </button>
-          </label>
+          </div>
+
+          <!-- Status Options -->
+          <div class="flex flex-wrap gap-2 justify-center md:justify-end">
+            <label
+              v-for="status in statusOptions"
+              :key="status"
+              class="relative cursor-pointer uppercase text-sm font-bold tracking-wide px-4 py-2 border-2 border-black rounded-md transition-all"
+              :class="statusButton(g.status, status)"
+            >
+              <input
+                type="radio"
+                :name="'status-' + g.id"
+                :value="status"
+                v-model="g.status"
+                class="hidden"
+              />
+
+              {{ status }}
+
+              <button
+                v-if="g.status === status"
+                type="button"
+                @click.stop="openKeterangan(g)"
+                class="ml-2 text-xs hover:scale-110 transition"
+              >
+                {{ g.keterangan ? "📝" : "✏️" }}
+              </button>
+            </label>
+          </div>
         </div>
       </div>
-    </div>
 
-    <button
+      <!-- <button
       @click="submitAbsensi"
       :disabled="submitLoading"
       class="btn submit-button"
     >
       {{ submitLoading ? "Mengirim..." : "📥 Bagikan ke WhatsApp" }}
-    </button>
+    </button> -->
+
+      <p v-if="belumLengkap" class="text-sm text-gray-500 mt-2 text-center">
+        ⚠️ Semua generus harus diabsen terlebih dahulu sebelum dikirim.
+      </p>
+
+      <button
+        @click="submitAbsensi"
+        :disabled="submitLoading || belumLengkap"
+        class="btn submit-button m-auto"
+        :class="{ 'opacity-50 cursor-not-allowed': belumLengkap }"
+      >
+        {{ submitLoading ? "Mengirim..." : "📥 Bagikan ke WhatsApp" }}
+      </button>
+    </div>
 
     <ModalKeterangan
       v-if="modalKeteranganOpen"
@@ -229,6 +244,13 @@ import { useRoute, useRouter } from "vue-router";
 import FormTambahGenerus from "../components/FormTambahGenerus.vue";
 import AbsensiStats from "../components/AbsensiStats.vue";
 import ModalKeterangan from "../components/ModalKeterangan.vue";
+
+const belumLengkap = computed(() => {
+  if (generusList.value.length === 0) return true;
+
+  // true kalau ADA yang belum diabsen
+  return generusList.value.some((g) => !g.status);
+});
 
 /* ========================
    State

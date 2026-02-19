@@ -186,16 +186,18 @@ const errorRekap = ref(null);
 
 function detectSesiOtomatis() {
   const now = new Date();
-  const jamWIB = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Jakarta",
+
+  const jamWITA = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Makassar", // WITA (Tarakan)
     hour: "2-digit",
     hour12: false,
   }).format(now);
-  const jam = parseInt(jamWIB);
+
+  const jam = parseInt(jamWITA);
 
   if (jam >= 3 && jam < 6) return "subuh";
-  if (jam >= 6 && jam < 11) return "pagi";
-  if (jam >= 11 && jam < 15) return "siang";
+  if (jam >= 6 && jam < 12) return "pagi";
+  if (jam >= 12 && jam < 18) return "siang"; // diperpanjang sampai 18:00
   return "malam";
 }
 
@@ -211,6 +213,7 @@ const fetchRekap = async () => {
       `https://absensi.ppgtarakan.com/api/rekap_harian.php?${params.toString()}`,
     );
     const data = await res.json();
+    console.log("🚀 ~ fetchRekap ~ data:", data);
 
     if (data.status) {
       rekap.value = data.data;

@@ -12,7 +12,6 @@
       <a href="#rekap" class="btn btn-secondary">📊 Lihat Rekap Absen</a>
     </div>
   </div>
-  <RekapHarian />
   <div class="bg-layout min-h-screen" id="absen">
     <div class="neo-box">
       <h1>Absensi Pengajian Generus Jenjang SMP, SMA, dan Mandiri.</h1>
@@ -79,6 +78,7 @@
       </div>
     </div>
   </div>
+  <RekapHarian />
 </template>
 
 <script setup>

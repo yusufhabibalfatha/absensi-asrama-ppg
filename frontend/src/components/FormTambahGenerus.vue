@@ -14,16 +14,40 @@
     <div class="flex gap-2 flex-wrap">
       <input type="text" v-model="nama_lengkap" placeholder="Nama Lengkap" />
 
-      <input
+      <!-- <input
         type="text"
         v-model="nama_panggilan"
         placeholder="Nama Panggilan"
-      />
+      /> -->
 
       <select v-model="jenis_kelamin">
         <option disabled value="">Jenis Kelamin</option>
         <option value="L">Laki-laki</option>
         <option value="P">Perempuan</option>
+      </select>
+
+      <select v-model="jenjang_pembinaan">
+        <option disabled value="">Jenjang Pembinaan</option>
+        <option value="9">Pra remaja (SMP)</option>
+        <option value="11">Remaja (SMA)</option>
+        <option value="8">Pra nikah (MANDIRI)</option>
+      </select>
+
+      <select v-model="jenjang_pendidikan">
+        <option disabled value="">Jenjang Pendidikan</option>
+        <option value="SD 1">SD 1</option>
+        <option value="SD 2">SD 2</option>
+        <option value="SD 3">SD 3</option>
+        <option value="SD 4">SD 4</option>
+        <option value="SD 5">SD 5</option>
+        <option value="SD 6">SD 6</option>
+        <option value="SMP 1">SMP 1</option>
+        <option value="SMP 2">SMP 2</option>
+        <option value="SMP 3">SMP 3</option>
+        <option value="SMA / SMK">SMA / SMK</option>
+        <option value="Kuliah">Kuliah</option>
+        <option value="Bekerja">Bekerja</option>
+        <option value="Belum bekerja">Belum bekerja</option>
       </select>
 
       <button
@@ -60,8 +84,10 @@ const emit = defineEmits(["added"]);
    State
 ======================== */
 const nama_lengkap = ref("");
-const nama_panggilan = ref("");
+// const nama_panggilan = ref("");
 const jenis_kelamin = ref("");
+const jenjang_pendidikan = ref("");
+const jenjang_pembinaan = ref("");
 const loading = ref(false);
 
 /* ========================
@@ -84,8 +110,9 @@ async function tambahGenerus() {
       body: JSON.stringify({
         kelompok_id: props.kelompokId,
         nama_lengkap: nama_lengkap.value,
-        nama_panggilan: nama_panggilan.value,
         jenis_kelamin: jenis_kelamin.value,
+        jenjang_pembinaan: jenjang_pembinaan.value,
+        jenjang_pendidikan: jenjang_pendidikan.value,
       }),
     });
 
@@ -96,8 +123,10 @@ async function tambahGenerus() {
 
       // reset form
       nama_lengkap.value = "";
-      nama_panggilan.value = "";
+      // nama_panggilan.value = "";
       jenis_kelamin.value = "";
+      jenjang_pembinaan.value = "";
+      jenjang_pendidikan.value = "";
     } else {
       alert(data.message);
     }

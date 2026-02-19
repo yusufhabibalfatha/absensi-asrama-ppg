@@ -532,20 +532,21 @@ const daftarSesi = ["subuh", "pagi", "siang", "malam"];
 function detectSesiOtomatis() {
   const now = new Date();
 
-  // ambil jam WIB
-  const jamWIB = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Jakarta",
+  // ambil jam WITA (Tarakan)
+  const jamWITA = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Makassar",
     hour: "2-digit",
     hour12: false,
   }).format(now);
 
-  const jam = parseInt(jamWIB);
+  const jam = parseInt(jamWITA);
 
   if (jam >= 3 && jam < 6) {
     return "subuh";
-  } else if (jam >= 6 && jam < 11) {
+  } else if (jam >= 6 && jam < 12) {
     return "pagi";
-  } else if (jam >= 11 && jam < 15) {
+  } else if (jam >= 12 && jam < 18) {
+    // diperpanjang sampai 18:00
     return "siang";
   } else {
     return "malam";

@@ -45,37 +45,75 @@ try {
   $pdo->beginTransaction();
 
   // =====================
-  // 1️⃣ INSERT PERTEMUAN
+  // 1️⃣ CEK / BUAT PERTEMUAN
   // =====================
 
-  $stmtPertemuan = $pdo->prepare("
-        INSERT INTO ppg_pertemuan 
-        (kelompok_id, tanggal, materi, sesi)
-        VALUES (:kelompok_id, :tanggal, :materi, :sesi)
-    ");
+  $stmtCek = $pdo->prepare("
+      SELECT id FROM ppg_pertemuan
+      WHERE kelompok_id = :kelompok_id
+      AND tanggal = :tanggal
+      AND sesi = :sesi
+      LIMIT 1
+  ");
 
-  $stmtPertemuan->execute([
+  $stmtCek->execute([
     ':kelompok_id' => $kelompok_id,
     ':tanggal'     => $tanggal,
-    ':materi'      => $materi,
     ':sesi'        => $sesi
   ]);
 
-  $pertemuan_id = $pdo->lastInsertId();
+  $pertemuan = $stmtCek->fetch(PDO::FETCH_ASSOC);
+
+  if ($pertemuan) {
+
+    // Jika sudah ada → pakai ID lama
+    $pertemuan_id = $pertemuan['id'];
+
+    // Optional: update materi
+    $stmtUpdate = $pdo->prepare("
+          UPDATE ppg_pertemuan
+          SET materi = :materi
+          WHERE id = :id
+      ");
+
+    $stmtUpdate->execute([
+      ':materi' => $materi,
+      ':id'     => $pertemuan_id
+    ]);
+  } else {
+
+    // Jika belum ada → buat baru
+    $stmtInsert = $pdo->prepare("
+          INSERT INTO ppg_pertemuan
+          (kelompok_id, tanggal, materi, sesi)
+          VALUES (:kelompok_id, :tanggal, :materi, :sesi)
+      ");
+
+    $stmtInsert->execute([
+      ':kelompok_id' => $kelompok_id,
+      ':tanggal'     => $tanggal,
+      ':materi'      => $materi,
+      ':sesi'        => $sesi
+    ]);
+
+    $pertemuan_id = $pdo->lastInsertId();
+  }
 
   // =====================
-  // 2️⃣ INSERT ABSENSI
+  // 2️⃣ ABSENSI (UPSERT)
   // =====================
 
   $stmtAbsensi = $pdo->prepare("
-        INSERT INTO ppg_absensi 
-        (pertemuan_id, generus_id, status, keterangan)
-        VALUES (:pertemuan_id, :generus_id, :status, :keterangan)
-    ");
+      INSERT INTO ppg_absensi
+      (pertemuan_id, generus_id, status, keterangan)
+      VALUES (:pertemuan_id, :generus_id, :status, :keterangan)
+      ON DUPLICATE KEY UPDATE
+          status = VALUES(status),
+          keterangan = VALUES(keterangan)
+  ");
 
   foreach ($generus as $g) {
 
-    // Skip jika status null (tidak diisi)
     if (empty($g['status'])) {
       continue;
     }
@@ -90,11 +128,9 @@ try {
 
   $pdo->commit();
 
-  http_response_code(201);
-
   echo json_encode([
     'status' => true,
-    'message' => 'Absensi berhasil disimpan',
+    'message' => 'Absensi berhasil disimpan / diperbarui',
     'pertemuan_id' => $pertemuan_id
   ]);
   exit;

@@ -56,38 +56,97 @@ try {
 
     $input = json_decode(file_get_contents("php://input"), true);
 
-    $nama_lengkap   = $input['nama_lengkap'] ?? null;
-    $nama_panggilan = $input['nama_panggilan'] ?? null;
-    $jenis_kelamin  = $input['jenis_kelamin'] ?? null;
-    $kelompok_id    = $input['kelompok_id'] ?? null;
+    $nama_lengkap       = $input['nama_lengkap'] ?? null;
+    $jenis_kelamin      = $input['jenis_kelamin'] ?? null;
+    $kelompok_id        = $input['kelompok_id'] ?? null;
+    $jenjang_pembinaan  = $input['jenjang_pembinaan'] ?? null; // id dari ppg_jenjang
+    $jenjang_pendidikan = $input['jenjang_pendidikan'] ?? null; // contoh: "SMP 1"
 
     if (!$nama_lengkap || !$jenis_kelamin || !$kelompok_id) {
-      error_log("POST Error: Data tidak lengkap - " . json_encode($input));
-      echo json_encode(['status' => false, 'message' => 'Data tidak lengkap']);
+      echo json_encode([
+        'status' => false,
+        'message' => 'Data tidak lengkap'
+      ]);
       exit;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO ppg_generus (nama_lengkap, nama_panggilan, jenis_kelamin, kelompok_id) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$nama_lengkap, $nama_panggilan, $jenis_kelamin, $kelompok_id]);
+    try {
 
-    $id = $pdo->lastInsertId();
+      $pdo->beginTransaction();
 
-    $stmt = $pdo->prepare("SELECT * FROM ppg_generus WHERE id = ?");
-    $stmt->execute([$id]);
-    $generusBaru = $stmt->fetch();
+      /* =========================
+           1️⃣ Insert ke ppg_generus
+        ==========================*/
+      $stmt = $pdo->prepare("
+            INSERT INTO ppg_generus 
+            (nama_lengkap, jenis_kelamin, kelompok_id) 
+            VALUES (?, ?, ?)
+        ");
+      $stmt->execute([
+        $nama_lengkap,
+        $jenis_kelamin,
+        $kelompok_id
+      ]);
 
-    // // insert log aktivitas
-    // $stmt_log = $pdo->prepare("INSERT INTO ppg_activity_logs (user_id, aksi, tabel, record_id, created_at) 
-    //                            VALUES (:user_id, 'tambah generus', 'ppg_generus', :record_id, NOW())");
-    // // karena no login, kita bisa set user_id = 0 untuk representasi guest
-    // $stmt_log->execute([
-    //   'user_id' => 0,
-    //   'record_id' => $generus_id
-    // ]);
+      $generus_id = $pdo->lastInsertId();
 
-    echo json_encode(['status' => true, 'data' => $generusBaru]);
-    exit;
+      /* =========================
+           2️⃣ Insert Jenjang Pembinaan
+        ==========================*/
+      if ($jenjang_pembinaan) {
+        $stmt = $pdo->prepare("
+                INSERT INTO ppg_generus_jenjang 
+                (generus_id, jenjang_id, tahun, status)
+                VALUES (?, ?, YEAR(CURDATE()), 'aktif')
+            ");
+        $stmt->execute([
+          $generus_id,
+          $jenjang_pembinaan
+        ]);
+      }
+
+      /* =========================
+           3️⃣ Insert Jenjang Pendidikan
+        ==========================*/
+      if ($jenjang_pendidikan) {
+        $stmt = $pdo->prepare("
+                INSERT INTO ppg_pendidikan 
+                (generus_id, jenjang, tahun)
+                VALUES (?, ?, YEAR(CURDATE()))
+            ");
+        $stmt->execute([
+          $generus_id,
+          $jenjang_pendidikan
+        ]);
+      }
+
+      $pdo->commit();
+
+      /* =========================
+           4️⃣ Ambil Data Baru
+        ==========================*/
+      $stmt = $pdo->prepare("SELECT * FROM ppg_generus WHERE id = ?");
+      $stmt->execute([$generus_id]);
+      $generusBaru = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      echo json_encode([
+        'status' => true,
+        'data'   => $generusBaru
+      ]);
+      exit;
+    } catch (Exception $e) {
+
+      $pdo->rollBack();
+
+      echo json_encode([
+        'status' => false,
+        'message' => 'Gagal menyimpan data',
+        'error' => $e->getMessage()
+      ]);
+      exit;
+    }
   }
+
 
   // Jika method selain GET/POST
   error_log("Method tidak diizinkan: " . $method);

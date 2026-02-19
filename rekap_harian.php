@@ -31,7 +31,7 @@ try {
 
             COUNT(CASE WHEN a.status='hadir' THEN 1 END) AS hadir,
             COUNT(CASE WHEN a.status='izin' THEN 1 END) AS izin,
-            COUNT(CASE WHEN a.status='alfa' THEN 1 END) AS alfa,
+            COUNT(CASE WHEN a.status='alpa' THEN 1 END) AS alfa,
             COUNT(a.id) AS total
 
         FROM ppg_kelompok k

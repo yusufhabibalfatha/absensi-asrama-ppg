@@ -84,6 +84,23 @@
             </td>
           </tr>
         </tbody>
+        <tfoot class="bg-blue-50 font-bold">
+          <tr>
+            <td class="px-2 py-1 border">TOTAL DESA BARAT</td>
+            <td class="px-2 py-1 border text-center">
+              {{ totalDesaBarat.hadir }}
+            </td>
+            <td class="px-2 py-1 border text-center">
+              {{ totalDesaBarat.izin }}
+            </td>
+            <td class="px-2 py-1 border text-center">
+              {{ totalDesaBarat.alfa }}
+            </td>
+            <td class="px-2 py-1 border text-center">
+              {{ totalDesaBarat.total }}
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
 
@@ -131,6 +148,23 @@
             </td>
           </tr>
         </tbody>
+        <tfoot class="bg-purple-50 font-bold">
+          <tr>
+            <td class="px-2 py-1 border">TOTAL DESA TIMUR</td>
+            <td class="px-2 py-1 border text-center">
+              {{ totalDesaTimur.hadir }}
+            </td>
+            <td class="px-2 py-1 border text-center">
+              {{ totalDesaTimur.izin }}
+            </td>
+            <td class="px-2 py-1 border text-center">
+              {{ totalDesaTimur.alfa }}
+            </td>
+            <td class="px-2 py-1 border text-center">
+              {{ totalDesaTimur.total }}
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
 
@@ -199,6 +233,34 @@ const desaBarat = computed(() =>
 const desaTimur = computed(() =>
   rekap.value.filter((item) => item.nama_desa.toLowerCase().includes("timur")),
 );
+
+// =========================
+// TOTAL DESA BARAT
+// =========================
+const totalDesaBarat = computed(() => {
+  const data = desaBarat.value.filter((item) => item.pertemuan_id);
+
+  return {
+    hadir: data.reduce((sum, item) => sum + Number(item.hadir || 0), 0),
+    izin: data.reduce((sum, item) => sum + Number(item.izin || 0), 0),
+    alfa: data.reduce((sum, item) => sum + Number(item.alfa || 0), 0),
+    total: data.reduce((sum, item) => sum + Number(item.total || 0), 0),
+  };
+});
+
+// =========================
+// TOTAL DESA TIMUR
+// =========================
+const totalDesaTimur = computed(() => {
+  const data = desaTimur.value.filter((item) => item.pertemuan_id);
+
+  return {
+    hadir: data.reduce((sum, item) => sum + Number(item.hadir || 0), 0),
+    izin: data.reduce((sum, item) => sum + Number(item.izin || 0), 0),
+    alfa: data.reduce((sum, item) => sum + Number(item.alfa || 0), 0),
+    total: data.reduce((sum, item) => sum + Number(item.total || 0), 0),
+  };
+});
 
 onMounted(fetchRekap);
 </script>

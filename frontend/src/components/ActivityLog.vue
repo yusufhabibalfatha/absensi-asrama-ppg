@@ -13,7 +13,7 @@
 
     <!-- TABLE WRAPPER -->
     <div v-if="logs.length" class="border rounded-lg overflow-hidden">
-      <div class="max-h-[400px] overflow-y-auto">
+      <div class="max-h-100 overflow-y-auto">
         <table class="min-w-full border-collapse">
           <thead class="bg-gray-100 sticky top-0">
             <tr class="text-left">

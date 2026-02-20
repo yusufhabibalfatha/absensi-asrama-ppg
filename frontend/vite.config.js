@@ -13,14 +13,4 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  build: {
-    outDir: "dist",
-    rollupOptions: {
-      output: {
-        assetFileNames: "[name].[ext]", // semua file asset di root
-        chunkFileNames: "[name].js",
-        entryFileNames: "[name].js",
-      },
-    },
-  },
 });

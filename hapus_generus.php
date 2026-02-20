@@ -34,7 +34,7 @@ try {
     $kelompok_id = $input['kelompok_id'] ?? null;
 
     $stmt = $pdo->prepare("INSERT INTO ppg_activity_logs (kelompok_id, aksi, tabel, record_id) VALUES (?, ?, 'ppg_generus', ?)");
-    $stmt->execute([$kelompok_id, 'hapus' . $aksi, $generus_id]);
+    $stmt->execute([$kelompok_id, 'hapus = ' . $aksi, $generus_id]);
 
     $activity_id = $pdo->lastInsertId();
 

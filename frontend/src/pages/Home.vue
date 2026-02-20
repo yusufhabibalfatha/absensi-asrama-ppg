@@ -78,8 +78,10 @@
       </div>
     </div>
   </div>
-  <RekapHarian />
-  <ActivityLog />
+  <div class="flex flex-col gap-8 mt-10">
+    <RekapHarian />
+    <ActivityLog />
+  </div>
 </template>
 
 <script setup>

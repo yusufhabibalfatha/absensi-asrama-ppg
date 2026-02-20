@@ -87,7 +87,7 @@
           class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
         >
           <!-- Nama + Badge -->
-          <div class="flex flex-wrap items-center gap-3 flex-1">
+          <div class="flex flex-wrap items-center gap-3 flex-1 bg-red-200">
             <p
               class="text-lg font-bold px-4 py-2 rounded-lg transition-all duration-300"
               :class="namaStyle(g.status)"
@@ -127,6 +127,27 @@
               class="bg-red-500 text-white border-2 border-black rounded-md px-3 py-1 text-xs font-bold shadow-[1px_1px_0_black] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[2px_2px_0_black]"
             >
               ❌ Batalkan
+            </button>
+
+            <button
+              class="bg-red-400 text-white border-2 border-black rounded-md px-3 py-1 text-xs font-bold shadow-[1px_1px_0_black] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[2px_2px_0_black] flex gap-1 items-center"
+              @click="toggleModalHapusGenerus(g.id)"
+            >
+              <svg x="0px" y="0px" width="24" height="24" viewBox="0 0 48 48">
+                <path
+                  fill="#f44336"
+                  d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"
+                ></path>
+                <path
+                  fill="#fff"
+                  d="M29.656,15.516l2.828,2.828l-14.14,14.14l-2.828-2.828L29.656,15.516z"
+                ></path>
+                <path
+                  fill="#fff"
+                  d="M32.484,29.656l-2.828,2.828l-14.14-14.14l2.828-2.828L32.484,29.656z"
+                ></path>
+              </svg>
+              <p>Hapus Generus</p>
             </button>
           </div>
 
@@ -191,6 +212,13 @@
       @close="modalKeteranganOpen = false"
     />
 
+    <ModalHapusGenerus
+      v-if="modalHapusGenerusOpen"
+      @delete="hapusGenerus"
+      @close="modalHapusGenerusOpen = false"
+      :kelompokNama="kelompokNama"
+    />
+
     <div
       v-if="whatsappMessage"
       class="fixed inset-0 bg-black/70 flex items-center justify-center z-2000 p-4"
@@ -244,6 +272,7 @@ import { useRoute, useRouter } from "vue-router";
 import FormTambahGenerus from "../components/FormTambahGenerus.vue";
 import AbsensiStats from "../components/AbsensiStats.vue";
 import ModalKeterangan from "../components/ModalKeterangan.vue";
+import ModalHapusGenerus from "@/components/ModalHapusGenerus.vue";
 
 const belumLengkap = computed(() => {
   if (generusList.value.length === 0) return true;
@@ -268,10 +297,47 @@ const generusList = ref([]);
 const statusOptions = ["Hadir", "Terlambat", "Izin", "Sakit", "Alpa"];
 
 const modalKeteranganOpen = ref(false);
+const modalHapusGenerusOpen = ref(false);
+const hapusGenerusId = ref(null);
 const editingKeterangan = ref(null);
 
 const submitLoading = ref(false);
 const whatsappMessage = ref("");
+
+const toggleModalHapusGenerus = (generus_id) => {
+  hapusGenerusId.value = generus_id;
+  modalHapusGenerusOpen.value = !modalHapusGenerusOpen.value;
+};
+
+async function hapusGenerus(finalAlasan) {
+  console.log("🚀 ~ hapusGenerus ~ finalAlasan:", finalAlasan);
+  try {
+    const url = `https://absensi.ppgtarakan.com/api/hapus_generus.php?generus_id=${hapusGenerusId.value}`;
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        aksi: finalAlasan,
+        kelompok_id: kelompokId.value,
+      }),
+    });
+    const data = await res.json();
+
+    if (data.status) {
+      const id = Number(hapusGenerusId.value);
+
+      generusList.value = generusList.value.filter((g) => Number(g.id) !== id);
+
+      modalHapusGenerusOpen.value = false;
+      hapusGenerusId.value = null;
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Gagal memuat data generus");
+  }
+}
 
 /* ========================
    Computed

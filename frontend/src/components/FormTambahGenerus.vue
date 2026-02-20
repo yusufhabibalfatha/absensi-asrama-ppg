@@ -35,12 +35,6 @@
 
       <select v-model="jenjang_pendidikan">
         <option disabled value="">Jenjang Pendidikan</option>
-        <option value="SD 1">SD 1</option>
-        <option value="SD 2">SD 2</option>
-        <option value="SD 3">SD 3</option>
-        <option value="SD 4">SD 4</option>
-        <option value="SD 5">SD 5</option>
-        <option value="SD 6">SD 6</option>
         <option value="SMP 1">SMP 1</option>
         <option value="SMP 2">SMP 2</option>
         <option value="SMP 3">SMP 3</option>

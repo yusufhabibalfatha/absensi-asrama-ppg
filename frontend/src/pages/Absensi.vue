@@ -87,7 +87,7 @@
           class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
         >
           <!-- Nama + Badge -->
-          <div class="flex flex-wrap items-center gap-3 flex-1 bg-red-200">
+          <div class="flex flex-wrap items-center gap-3 flex-1">
             <p
               class="text-lg font-bold px-4 py-2 rounded-lg transition-all duration-300"
               :class="namaStyle(g.status)"

@@ -87,7 +87,13 @@
 
         <button
           @click="handleDelete"
-          class="px-4 py-2 rounded-md text-white font-medium bg-red-500 hover:bg-red-600 transition"
+          :disabled="!isValid"
+          class="px-4 py-2 rounded-md text-white font-medium transition"
+          :class="
+            isValid
+              ? 'bg-red-500 hover:bg-red-600'
+              : 'bg-gray-300 cursor-not-allowed'
+          "
         >
           🗑️ Hapus
         </button>
@@ -97,7 +103,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 const emit = defineEmits(["delete", "close"]);
 
@@ -120,4 +126,14 @@ const handleDelete = () => {
   alasanLainnya.value = "";
   emit("close");
 };
+
+const isValid = computed(() => {
+  if (!alasanHapus.value) return false;
+
+  if (alasanHapus.value === "Lainnya") {
+    return alasanLainnya.value.trim().length > 0;
+  }
+
+  return true;
+});
 </script>

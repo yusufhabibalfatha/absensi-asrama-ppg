@@ -129,6 +129,9 @@ try {
       $stmt->execute([$generus_id]);
       $generusBaru = $stmt->fetch(PDO::FETCH_ASSOC);
 
+      $stmt = $pdo->prepare("INSERT INTO ppg_activity_logs (kelompok_id, aksi, tabel, record_id) VALUES (?, ?, 'ppg_generus', ?)");
+      $stmt->execute([$kelompok_id, 'tambah generus baru', $generus_id]);
+
       echo json_encode([
         'status' => true,
         'data'   => $generusBaru

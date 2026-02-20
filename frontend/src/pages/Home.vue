@@ -79,12 +79,14 @@
     </div>
   </div>
   <RekapHarian />
+  <ActivityLog />
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import RekapHarian from "@/components/RekapHarian.vue";
+import ActivityLog from "@/components/ActivityLog.vue";
 
 const router = useRouter();
 

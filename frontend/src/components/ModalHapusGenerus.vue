@@ -15,6 +15,26 @@
           <input
             type="radio"
             name="alasanHapus"
+            value="Nama/Data double"
+            v-model="alasanHapus"
+            class="accent-blue-500"
+          />
+          Nama/data double.
+        </label>
+        <label class="flex items-center gap-2">
+          <input
+            type="radio"
+            name="alasanHapus"
+            value="Menikah"
+            v-model="alasanHapus"
+            class="accent-blue-500"
+          />
+          Menikah.
+        </label>
+        <label class="flex items-center gap-2">
+          <input
+            type="radio"
+            name="alasanHapus"
             value="Merantau ke luar pulau"
             v-model="alasanHapus"
             class="accent-blue-500"

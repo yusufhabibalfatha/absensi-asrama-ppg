@@ -2,8 +2,6 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/cors.php';
 
-header('Content-Type: application/json');
-
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
   http_response_code(405);
   echo json_encode([
@@ -25,14 +23,10 @@ try {
             k.id AS kelompok_id,
             k.nama AS nama_kelompok,
             d.nama AS nama_desa,
-
             p.id AS pertemuan_id,
             p.sesi,
-
-            COUNT(CASE WHEN a.status='hadir' THEN 1 END) AS hadir,
-            COUNT(CASE WHEN a.status='izin' THEN 1 END) AS izin,
-            COUNT(CASE WHEN a.status='alpa' THEN 1 END) AS alfa,
-            COUNT(a.id) AS total
+            a.status,
+            COUNT(a.id) AS jumlah
 
         FROM ppg_kelompok k
         JOIN ppg_desa d ON k.desa_id = d.id
@@ -42,7 +36,6 @@ try {
             AND p.tanggal = :tanggal
     ";
 
-  // 🔥 Tambah filter sesi kalau ada
   if ($sesi) {
     $sql .= " AND p.sesi = :sesi ";
     $params[':sesi'] = $sesi;
@@ -52,7 +45,7 @@ try {
         LEFT JOIN ppg_absensi a 
             ON a.pertemuan_id = p.id
 
-        GROUP BY k.id, p.id
+        GROUP BY k.id, p.id, a.status
         ORDER BY 
             p.id IS NULL ASC,
             d.nama ASC,
@@ -61,14 +54,44 @@ try {
 
   $stmt = $pdo->prepare($sql);
   $stmt->execute($params);
+  $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  // ======================================
+  // FORMAT DATA AGAR RAPI & DINAMIS
+  // ======================================
+
+  $data = [];
+
+  foreach ($rows as $row) {
+
+    $key = $row['kelompok_id'] . '-' . ($row['pertemuan_id'] ?? '0');
+
+    if (!isset($data[$key])) {
+      $data[$key] = [
+        'kelompok_id'   => $row['kelompok_id'],
+        'nama_kelompok' => $row['nama_kelompok'],
+        'nama_desa'     => $row['nama_desa'],
+        'pertemuan_id'  => $row['pertemuan_id'],
+        'sesi'          => $row['sesi'],
+        'rekap'         => [],
+        'total'         => 0
+      ];
+    }
+
+    if ($row['status']) {
+      $statusKey = strtolower($row['status']);
+      $jumlah = (int) $row['jumlah'];
+
+      $data[$key]['rekap'][$statusKey] = $jumlah;
+      $data[$key]['total'] += $jumlah;
+    }
+  }
 
   echo json_encode([
-    'status' => true,
+    'status'  => true,
     'tanggal' => $tanggal,
-    'sesi' => $sesi,
-    'data' => $data
+    'sesi'    => $sesi,
+    'data'    => array_values($data)
   ]);
 } catch (Exception $e) {
 
